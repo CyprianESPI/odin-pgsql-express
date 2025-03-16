@@ -7,9 +7,12 @@ const PORT = 3000;
 // Set the path to the directory where your HTML files reside
 const publicDirectoryPath = path.join(__dirname, 'public_pages');
 
-const db = require("../db/queries");
+//const db = require('./db/queries');
+
+console.log('Initializaing');
 
 async function getUsernames(req, res) {
+  console.log("Fetching...");
   const usernames = await db.getAllUsernames();
   console.log("Usernames: ", usernames);
   res.send("Usernames: " + usernames.map(user => user.username).join(", "));
@@ -25,13 +28,20 @@ async function createUsernamePost(req, res) {
   res.redirect("/");
 }
 
-// Serve static files from the public directory
-app.use(express.static(publicDirectoryPath));
+// Using static serve blocks logging somehow
+app.use('/', (req, res, next) => {
+    console.log("A new request received at " + Date.now());
+    next();
+ });
 
 // Routes for different HTML pages
-app.get('/', getUsernames);
+app.get('/', (req, res) => {
+    console.log('get /');
+    res.sendFile(path.join(publicDirectoryPath, 'index.html'));
+});
 
 app.get('/new', (req, res) => {
+    console.log('get /new');
     res.sendFile(path.join(publicDirectoryPath, 'new.html'));
 });
 
